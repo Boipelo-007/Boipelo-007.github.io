@@ -1,0 +1,9 @@
+{
+  "name": "Eduvos C2C Marketplace",
+  "short_name": "Eduvos C2C",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea"
+}

@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - Edu C2C Marketplace</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/4d21d6d70f.js" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .admin-header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .settings-card {
+            transition: all 0.3s ease;
+        }
+        .settings-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .setting-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar flex-shrink-0 p-3" style="width: 280px;">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <i class="fas fa-handshake me-2"></i>
+                <span class="fs-4">Admin Portal</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="listings.php" class="nav-link">
+                        <i class="fas fa-list me-2"></i>
+                        Listings
+                    </a>
+                </li>
+                <li>
+                    <a href="users.html" class="nav-link">
+                        <i class="fas fa-users me-2"></i>
+                        Users
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="nav-link">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Transactions
+                    </a>
+                </li>
+                <li>
+                    <a href="reports.html" class="nav-link">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="nav-link active">
+                        <i class="fas fa-cog me-2"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" width="32" height="32" class="rounded-circle me-2">
+                    <strong>Admin User</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <!-- Admin Header -->
+            <header class="admin-header py-3 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">System Settings</h4>
+                    <small class="text-muted">Manage platform configuration and preferences</small>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Admin Content -->
+            <main class="p-4">
+                <div class="row">
+                    <!-- Left Column -->
+                    <div class="col-lg-8">
+                        <!-- General Settings -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-globe me-2"></i> General Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="generalSettingsForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="platformName" class="form-label">Platform Name</label>
+                                            <input type="text" class="form-control" id="platformName" value="Edu C2C Marketplace">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="platformTagline" class="form-label">Tagline</label>
+                                            <input type="text" class="form-control" id="platformTagline" value="Empowering South Africa's Informal Economy">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="supportEmail" class="form-label">Support Email</label>
+                                            <input type="email" class="form-control" id="supportEmail" value="support@eduvosc2c.co.za">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="supportPhone" class="form-label">Support Phone</label>
+                                            <input type="tel" class="form-control" id="supportPhone" value="+27 83 123 4567">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="whatsappSupport" class="form-label">WhatsApp Support</label>
+                                            <input type="tel" class="form-control" id="whatsappSupport" value="+27 83 123 4567">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="defaultLanguage" class="form-label">Default Language</label>
+                                            <select class="form-select" id="defaultLanguage">
+                                                <option value="en" selected>English</option>
+                                                <option value="af">Afrikaans</option>
+                                                <option value="zu">Zulu</option>
+                                                <option value="xh">Xhosa</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="platformDescription" class="form-label">Platform Description</label>
+                                        <textarea class="form-control" id="platformDescription" rows="3">A consumer-to-consumer e-commerce platform designed specifically for South Africa's informal economy, helping vendors, artisans, and small-scale farmers reach broader markets.</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save General Settings</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Financial Settings -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-coins me-2"></i> Financial Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="financialSettingsForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="commissionRate" class="form-label">Commission Rate (%)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="commissionRate" value="5" min="0" max="100" step="0.1">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                            <small class="text-muted">Platform commission on successful transactions</small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="minTransactionAmount" class="form-label">Minimum Transaction Amount</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">R</span>
+                                                <input type="number" class="form-control" id="minTransactionAmount" value="10" min="0" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="maxTransactionAmount" class="form-label">Maximum Transaction Amount</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">R</span>
+                                                <input type="number" class="form-control" id="maxTransactionAmount" value="50000" min="0" step="0.01">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="escrowFee" class="form-label">Escrow Service Fee (%)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="escrowFee" value="2.5" min="0" max="10" step="0.1">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="refundProcessingTime" class="form-label">Refund Processing Time (days)</label>
+                                            <input type="number" class="form-control" id="refundProcessingTime" value="3" min="1" max="30">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="payoutFrequency" class="form-label">Seller Payout Frequency</label>
+                                            <select class="form-select" id="payoutFrequency">
+                                                <option value="daily">Daily</option>
+                                                <option value="weekly" selected>Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Financial Settings</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Listing Settings -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-list me-2"></i> Listing Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="listingSettingsForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="maxListingImages" class="form-label">Max Images per Listing</label>
+                                            <input type="number" class="form-control" id="maxListingImages" value="5" min="1" max="20">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="maxImageSize" class="form-label">Max Image Size (MB)</label>
+                                            <input type="number" class="form-control" id="maxImageSize" value="5" min="1" max="20">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="listingExpiryDays" class="form-label">Default Listing Expiry (days)</label>
+                                            <input type="number" class="form-control" id="listingExpiryDays" value="30" min="1" max="365">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="autoApproveListings" class="form-label">Auto-approve Listings</label>
+                                            <select class="form-select" id="autoApproveListings">
+                                                <option value="all" selected>All Listings</option>
+                                                <option value="verified">Verified Sellers Only</option>
+                                                <option value="none">Manual Approval Required</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="minListingPrice" class="form-label">Minimum Listing Price</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">R</span>
+                                                <input type="number" class="form-control" id="minListingPrice" value="1" min="0" step="0.01">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="featuredListingFee" class="form-label">Featured Listing Fee</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">R</span>
+                                                <input type="number" class="form-control" id="featuredListingFee" value="25" min="0" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Listing Settings</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Security & Trust Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="securitySettingsForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="minPasswordLength" class="form-label">Minimum Password Length</label>
+                                            <input type="number" class="form-control" id="minPasswordLength" value="8" min="6" max="20">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="sessionTimeout" class="form-label">Session Timeout (minutes)</label>
+                                            <input type="number" class="form-control" id="sessionTimeout" value="60" min="10" max="480">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="maxLoginAttempts" class="form-label">Max Login Attempts</label>
+                                            <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="3" max="10">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="accountLockoutTime" class="form-label">Account Lockout Time (minutes)</label>
+                                            <input type="number" class="form-control" id="accountLockoutTime" value="30" min="5" max="1440">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="verificationRequired" class="form-label">Verification Requirements</label>
+                                            <select class="form-select" id="verificationRequired">
+                                                <option value="optional">Optional</option>
+                                                <option value="required_sellers" selected>Required for Sellers</option>
+                                                <option value="required_all">Required for All Users</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="suspiciousActivityThreshold" class="form-label">Suspicious Activity Threshold</label>
+                                            <select class="form-select" id="suspiciousActivityThreshold">
+                                                <option value="low">Low</option>
+                                                <option value="medium" selected>Medium</option>
+                                                <option value="high">High</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Security Settings</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Communication Settings -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-envelope me-2"></i> Communication Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="communicationSettingsForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="emailProvider" class="form-label">Email Service Provider</label>
+                                            <select class="form-select" id="emailProvider">
+                                                <option value="sendgrid" selected>SendGrid</option>
+                                                <option value="mailgun">Mailgun</option>
+                                                <option value="ses">Amazon SES</option>
+                                                <option value="smtp">Custom SMTP</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="smsProvider" class="form-label">SMS Service Provider</label>
+                                            <select class="form-select" id="smsProvider">
+                                                <option value="twilio" selected>Twilio</option>
+                                                <option value="africas_talking">Africa's Talking</option>
+                                                <option value="clicksend">ClickSend</option>
+                                                <option value="custom">Custom</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fromEmail" class="form-label">From Email Address</label>
+                                            <input type="email" class="form-control" id="fromEmail" value="noreply@eduvosc2c.co.za">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fromName" class="form-label">From Name</label>
+                                            <input type="text" class="form-control" id="fromName" value="Edu C2C Marketplace">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Notification Preferences</label>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                                    <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="smsNotifications" checked>
+                                                    <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+                                                    <label class="form-check-label" for="pushNotifications">Push Notifications</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Communication Settings</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-lg-4">
+                        <!-- Feature Toggles -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-toggle-on me-2"></i> Feature Toggles</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Barter System</h6>
+                                        <small class="text-muted">Allow users to trade items instead of cash</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Digital Workshops</h6>
+                                        <small class="text-muted">Enable digital literacy workshop booking</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Mobile Money</h6>
+                                        <small class="text-muted">Enable mobile payment integration</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Escrow Service</h6>
+                                        <small class="text-muted">Secure payment holding service</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Low Data Mode</h6>
+                                        <small class="text-muted">Optimize for slow connections</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Multi-language</h6>
+                                        <small class="text-muted">Support for local languages</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">User Verification</h6>
+                                        <small class="text-muted">Identity verification for sellers</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Geolocation</h6>
+                                        <small class="text-muted">Location-based search and listings</small>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Information -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> System Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Platform Version:</th>
+                                        <td>2.1.4</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Database Version:</th>
+                                        <td>MySQL 8.0.35</td>
+                                    </tr>
+                                    <tr>
+                                        <th>PHP Version:</th>
+                                        <td>8.2.0</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Server Load:</th>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-success" style="width: 42%"></div>
+                                            </div>
+                                            <small class="text-muted">42% (Normal)</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Storage Used:</th>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-warning" style="width: 65%"></div>
+                                            </div>
+                                            <small class="text-muted">12.3GB / 20GB</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Last Backup:</th>
+                                        <td>2025-06-08 02:00:00</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Uptime:</th>
+                                        <td>45 days, 12 hours</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i> Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#backupModal">
+                                        <i class="fas fa-database me-2"></i> Create Backup
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
+                                        <i class="fas fa-tools me-2"></i> Maintenance Mode
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#cacheModal">
+                                        <i class="fas fa-sync me-2"></i> Clear Cache
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
+                                        <i class="fas fa-download me-2"></i> Export Data
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-file-alt me-2"></i> View Logs
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API Configuration -->
+                        <div class="card border-0 shadow-sm settings-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0"><i class="fas fa-plug me-2"></i> API Configuration</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="apiKey" class="form-label">API Key</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="apiKey" value="sk_live_abc123...">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="webhookUrl" class="form-label">Webhook URL</label>
+                                    <input type="url" class="form-control" id="webhookUrl" value="https://eduvosc2c.co.za/api/webhooks">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="rateLimitPerHour" class="form-label">Rate Limit (per hour)</label>
+                                    <input type="number" class="form-control" id="rateLimitPerHour" value="1000">
+                                </div>
+                                <button class="btn btn-primary btn-sm w-100">Update API Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Maintenance Mode Modal -->
+    <div class="modal fade" id="maintenanceModal" tabindex="-1" aria-labelledby="maintenanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="maintenanceModalLabel">Enable Maintenance Mode</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This will temporarily disable the platform for all users except administrators.
+                    </div>
+                    <div class="mb-3">
+                        <label for="maintenanceMessage" class="form-label">Maintenance Message</label>
+                        <textarea class="form-control" id="maintenanceMessage" rows="3" placeholder="We're performing scheduled maintenance. Please check back in a few minutes."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estimatedDuration" class="form-label">Estimated Duration (minutes)</label>
+                        <input type="number" class="form-control" id="estimatedDuration" value="30">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning">Enable Maintenance Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Modal -->
+    <div class="modal fade" id="backupModal" tabindex="-1" aria-labelledby="backupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="backupModalLabel">Create System Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Backup Type</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="backupType" id="fullBackup" value="full" checked>
+                            <label class="form-check-label" for="fullBackup">
+                                Full Backup (Database + Files)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="backupType" id="databaseOnly" value="database">
+                            <label class="form-check-label" for="databaseOnly">
+                                Database Only
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="backupType" id="filesOnly" value="files">
+                            <label class="form-check-label" for="filesOnly">
+                                Files Only
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="backupName" class="form-label">Backup Name</label>
+                        <input type="text" class="form-control" id="backupName" value="backup_2025-06-08">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="compressBackup" checked>
+                        <label class="form-check-label" for="compressBackup">
+                            Compress backup file
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Create Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cache Clear Modal -->
+    <div class="modal fade" id="cacheModal" tabindex="-1" aria-labelledby="cacheModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cacheModalLabel">Clear System Cache</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Select which caches to clear:</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="applicationCache" checked>
+                        <label class="form-check-label" for="applicationCache">
+                            Application Cache
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="databaseCache" checked>
+                        <label class="form-check-label" for="databaseCache">
+                            Database Query Cache
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="imageCache">
+                        <label class="form-check-label" for="imageCache">
+                            Image Cache
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="sessionCache">
+                        <label class="form-check-label" for="sessionCache">
+                            Session Cache
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning">Clear Selected Cache</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Data Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Export Platform Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Data to Export</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exportUsers" checked>
+                            <label class="form-check-label" for="exportUsers">Users</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exportListings" checked>
+                            <label class="form-check-label" for="exportListings">Listings</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exportTransactions" checked>
+                            <label class="form-check-label" for="exportTransactions">Transactions</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exportMessages">
+                            <label class="form-check-label" for="exportMessages">Messages</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exportFormat" class="form-label">Export Format</label>
+                        <select class="form-select" id="exportFormat">
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                            <option value="xlsx">Excel (XLSX)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateRange" class="form-label">Date Range</label>
+                        <select class="form-select" id="dateRange">
+                            <option value="all">All Time</option>
+                            <option value="last_week">Last Week</option>
+                            <option value="last_month" selected>Last Month</option>
+                            <option value="last_quarter">Last Quarter</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success">Export Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <!-- Custom JS -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Form submission handlers
+        document.getElementById('generalSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Simulate saving
+            showToast('General settings saved successfully!', 'success');
+        });
+
+        document.getElementById('financialSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Financial settings saved successfully!', 'success');
+        });
+
+        document.getElementById('listingSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Listing settings saved successfully!', 'success');
+        });
+
+        document.getElementById('securitySettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Security settings saved successfully!', 'success');
+        });
+
+        document.getElementById('communicationSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Communication settings saved successfully!', 'success');
+        });
+
+        // API Key toggle
+        document.getElementById('toggleApiKey').addEventListener('click', function() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const icon = this.querySelector('i');
+            
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                apiKeyInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Feature toggle handlers
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const feature = this.closest('.setting-item').querySelector('h6').textContent;
+                const status = this.checked ? 'enabled' : 'disabled';
+                showToast(`${feature} ${status}`, 'info');
+            });
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            toast.addEventListener('hidden.bs.toast', () => {
+                toastContainer.remove();
+            });
+        }
+
+        // Modal action handlers
+        document.querySelector('#maintenanceModal .btn-warning').addEventListener('click', function() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('maintenanceModal'));
+            modal.hide();
+            showToast('Maintenance mode enabled', 'warning');
+        });
+
+        document.querySelector('#backupModal .btn-primary').addEventListener('click', function() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('backupModal'));
+            modal.hide();
+            showToast('Backup creation started', 'info');
+        });
+
+        document.querySelector('#cacheModal .btn-warning').addEventListener('click', function() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('cacheModal'));
+            modal.hide();
+            showToast('Cache cleared successfully', 'success');
+        });
+
+        document.querySelector('#exportModal .btn-success').addEventListener('click', function() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+            modal.hide();
+            showToast('Data export started. You will receive an email when complete.', 'info');
+        });
+    </script>
+</body>
+</html>

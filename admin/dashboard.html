@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Edu C2C Marketplace</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/4d21d6d70f.js" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar flex-shrink-0 p-3" style="width: 280px;">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <i class="fas fa-handshake me-2"></i>
+                <span class="fs-4">Admin Portal</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link active">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="listings.php" class="nav-link">
+                        <i class="fas fa-list me-2"></i>
+                        Listings
+                    </a>
+                </li>
+                <li>
+                    <a href="users.html" class="nav-link">
+                        <i class="fas fa-users me-2"></i>
+                        Users
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="nav-link">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Transactions
+                    </a>
+                </li>
+                <li>
+                    <a href="reports.html" class="nav-link">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="nav-link">
+                        <i class="fas fa-cog me-2"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" width="32" height="32" class="rounded-circle me-2">
+                    <strong>Admin User</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <!-- Admin Header -->
+            <header class="admin-header py-3 px-4 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Dashboard</h4>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Admin Content -->
+            <main class="p-4">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Total Users</h6>
+                                        <h3 class="mb-0">1,248</h3>
+                                    </div>
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-users text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="text-success"><i class="fas fa-arrow-up"></i> 12.5%</span>
+                                    <span class="text-muted">since last month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Active Listings</h6>
+                                        <h3 class="mb-0">876</h3>
+                                    </div>
+                                    <div class="bg-success bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-list text-success"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="text-success"><i class="fas fa-arrow-up"></i> 8.3%</span>
+                                    <span class="text-muted">since last month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Transactions</h6>
+                                        <h3 class="mb-0">R245,780</h3>
+                                    </div>
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-exchange-alt text-warning"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="text-success"><i class="fas fa-arrow-up"></i> 15.2%</span>
+                                    <span class="text-muted">since last month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Pending Approvals</h6>
+                                        <h3 class="mb-0">42</h3>
+                                    </div>
+                                    <div class="bg-danger bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-clock text-danger"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="text-danger"><i class="fas fa-arrow-down"></i> 3.7%</span>
+                                    <span class="text-muted">since last month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">Recent Activity</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Action</th>
+                                                <th>Item</th>
+                                                <th>Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-2" width="30" height="30" alt="">
+                                                        <span>Nomsa D.</span>
+                                                    </div>
+                                                </td>
+                                                <td>New Listing</td>
+                                                <td>Fresh Vegetables</td>
+                                                <td>10 mins ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://randomuser.me/api/portraits/men/22.jpg" class="rounded-circle me-2" width="30" height="30" alt="">
+                                                        <span>Thabo M.</span>
+                                                    </div>
+                                                </td>
+                                                <td>Purchase</td>
+                                                <td>Handmade Jewelry</td>
+                                                <td>25 mins ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-2" width="30" height="30" alt="">
+                                                        <span>Lerato K.</span>
+                                                    </div>
+                                                </td>
+                                                <td>Account Verified</td>
+                                                <td>-</td>
+                                                <td>1 hour ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://randomuser.me/api/portraits/men/65.jpg" class="rounded-circle me-2" width="30" height="30" alt="">
+                                                        <span>Sipho N.</span>
+                                                    </div>
+                                                </td>
+                                                <td>New User</td>
+                                                <td>-</td>
+                                                <td>2 hours ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://randomuser.me/api/portraits/women/32.jpg" class="rounded-circle me-2" width="30" height="30" alt="">
+                                                        <span>Palesa K.</span>
+                                                    </div>
+                                                </td>
+                                                <td>Reported Listing</td>
+                                                <td>Used Phone</td>
+                                                <td>3 hours ago</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">Quick Actions</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary text-start">
+                                        <i class="fas fa-user-check me-2"></i> Verify User
+                                    </button>
+                                    <button class="btn btn-outline-success text-start">
+                                        <i class="fas fa-check-circle me-2"></i> Approve Listing
+                                    </button>
+                                    <button class="btn btn-outline-warning text-start">
+                                        <i class="fas fa-exclamation-triangle me-2"></i> Flagged Content
+                                    </button>
+                                    <button class="btn btn-outline-info text-start">
+                                        <i class="fas fa-chart-line me-2"></i> Generate Report
+                                    </button>
+                                    <button class="btn btn-outline-secondary text-start">
+                                        <i class="fas fa-bullhorn me-2"></i> Send Announcement
+                                    </button>
+                                </div>
+                                <hr>
+                                <h6 class="mb-3">System Status</h6>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Server Load</span>
+                                        <span>42%</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Database</span>
+                                        <span>Healthy</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Storage</span>
+                                        <span>65% used</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">Recent Transactions</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#TRX-7845</td>
+                                                <td>R120</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>Today, 10:45</td>
+                                            </tr>
+                                            <tr>
+                                                <td>#TRX-7844</td>
+                                                <td>R85</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>Today, 09:30</td>
+                                            </tr>
+                                            <tr>
+                                                <td>#TRX-7843</td>
+                                                <td>R1,499</td>
+                                                <td><span class="badge bg-warning">Pending</span></td>
+                                                <td>Today, 08:15</td>
+                                            </tr>
+                                            <tr>
+                                                <td>#TRX-7842</td>
+                                                <td>R200</td>
+                                                <td><span class="badge bg-danger">Failed</span></td>
+                                                <td>Yesterday</td>
+                                            </tr>
+                                            <tr>
+                                                <td>#TRX-7841</td>
+                                                <td>R150</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>Yesterday</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <a href="transactions.html" class="btn btn-sm btn-outline-primary w-100 mt-2">View All Transactions</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">User Registrations</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="userRegistrationsChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        // User registrations chart
+        const ctx = document.getElementById('userRegistrationsChart').getContext('2d');
+        const userRegistrationsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Buyers',
+                    data: [65, 59, 80, 81, 56, 55, 40],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }, {
+                    label: 'Sellers',
+                    data: [28, 48, 40, 19, 86, 27, 90],
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Edu C2C Marketplace</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/4d21d6d70f.js" crossorigin="anonymous"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navigation (same as index.php) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.php">
+                <i class="fas fa-handshake me-2"></i>Edu C2C
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="listings.php">Browse</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sell.html">Sell</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="about.html">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="login.html" class="btn btn-outline-primary me-2">Login</a>
+                    <a href="register.html" class="btn btn-primary">Register</a>
+                    <button id="lowDataToggle" class="btn btn-sm btn-outline-secondary ms-2" title="Toggle Low Data Mode">
+                        <i class="fas fa-network-wired"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">About Edu C2C</h1>
+            <p class="lead mb-5">Empowering South Africa's informal economy through technology</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-body">
+                        <h3 class="mb-4">Our Mission</h3>
+                        <p>Edu C2C Marketplace was created to bridge the digital divide in South Africa's informal economy. With 18% of GDP and 15.8 million people employed in the informal sector, we recognized a critical need for a platform that serves this vital part of our economy.</p>
+                        
+                        <p>Traditional e-commerce platforms often exclude informal traders due to technological barriers, trust issues, and lack of features tailored to their needs. We're changing that by building a platform designed specifically for South Africa's street vendors, small-scale farmers, artisans, and other informal traders.</p>
+                        
+                        <div class="row my-5">
+                            <div class="col-md-6 mb-4">
+                                <div class="bg-primary bg-opacity-10 p-4 rounded h-100">
+                                    <h4><i class="fas fa-bullseye me-2"></i> Our Vision</h4>
+                                    <p>To create a digitally inclusive marketplace where every informal trader can thrive, expand their customer base, and grow their business beyond local boundaries.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="bg-primary bg-opacity-10 p-4 rounded h-100">
+                                    <h4><i class="fas fa-hand-holding-heart me-2"></i> Our Values</h4>
+                                    <ul class="mb-0">
+                                        <li>Inclusivity</li>
+                                        <li>Community</li>
+                                        <li>Empowerment</li>
+                                        <li>Trust</li>
+                                        <li>Innovation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="mb-4">Key Features</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="fas fa-mobile-alt fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Mobile-First Design</h5>
+                                        <p class="text-muted">Optimized for smartphones with low data consumption to accommodate users with limited connectivity.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="fas fa-shield-alt fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Secure Transactions</h5>
+                                        <p class="text-muted">Integrated mobile money and escrow services to reduce cash dependence and increase safety.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="fas fa-exchange-alt fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Barter System</h5>
+                                        <p class="text-muted">Support for traditional barter trading alongside cash transactions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="fas fa-users fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Community Trust</h5>
+                                        <p class="text-muted">Verified seller badges and review systems to build confidence in transactions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="mb-4">Our Impact</h3>
+                        <div class="row text-center mb-4">
+                            <div class="col-md-4 mb-3">
+                                <div class="display-4 text-primary">15,000+</div>
+                                <p class="text-muted">Informal Traders Empowered</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="display-4 text-primary">R28M+</div>
+                                <p class="text-muted">In Transactions</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="display-4 text-primary">82%</div>
+                                <p class="text-muted">Increased Seller Income</p>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> We partner with local communities and government agencies to provide digital literacy training and support for informal traders transitioning to online commerce.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-body">
+                        <h3 class="mb-4">Meet the Team</h3>
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <div class="text-center">
+                                    <img src="https://randomuser.me/api/portraits/women/43.jpg" class="rounded-circle mb-3" width="120" height="120" alt="Team Member">
+                                    <h5>Boipelo Monametsi</h5>
+                                    <p class="text-muted">Founder & CEO</p>
+                                    <div class="social-links">
+                                        <a href="#" class="text-muted me-2"><i class="fab fa-linkedin"></i></a>
+                                        <a href="#" class="text-muted"><i class="fab fa-twitter"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="text-center">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle mb-3" width="120" height="120" alt="Team Member">
+                                    <h5>Thabo Molefe</h5>
+                                    <p class="text-muted">CTO</p>
+                                    <div class="social-links">
+                                        <a href="#" class="text-muted me-2"><i class="fab fa-linkedin"></i></a>
+                                        <a href="#" class="text-muted"><i class="fab fa-twitter"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="text-center">
+                                    <img src="https://randomuser.me/api/portraits/women/65.jpg" class="rounded-circle mb-3" width="120" height="120" alt="Team Member">
+                                    <h5>Nomsa Dlamini</h5>
+                                    <p class="text-muted">Community Manager</p>
+                                    <div class="social-links">
+                                        <a href="#" class="text-muted me-2"><i class="fab fa-linkedin"></i></a>
+                                        <a href="#" class="text-muted"><i class="fab fa-twitter"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="mb-4">Frequently Asked Questions</h3>
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        How is Edu C2C different from other marketplaces?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Edu C2C is specifically designed for South Africa's informal economy. We offer features like low-data usage, mobile money integration, barter options, and local language support that aren't typically available on mainstream platforms. We also provide digital literacy training to help sellers succeed online.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        Is there a fee to sell on Edu C2C?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Basic listings are completely free. We take a small commission (5%) only when you make a sale through our secure payment system. Cash transactions have no fees.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        How do I verify my seller account?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Verification helps build trust with buyers. You can verify your account by providing a copy of your ID and proof of address. Our community team may also schedule a quick video call or in-person meeting at one of our local partner locations.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                        What safety measures are in place?
+                                    </button>
+                                </h2>
+                                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        We recommend using our secure payment system for transactions. For in-person meetings, we suggest choosing public locations. All users can rate and review each other, and we have a reporting system for any issues. We also partner with local community organizations to provide safe trading spaces.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                        How can I get help with the platform?
+                                    </button>
+                                </h2>
+                                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        We offer several support options: 1) In-app help center with tutorials, 2) WhatsApp support line, 3) Community workshops in major cities, and 4) Partner locations where you can get in-person assistance. Visit our <a href="contact.html">Contact page</a> for details.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Call to Action -->
+    <section class="py-5 bg-primary text-white">
+        <div class="container text-center">
+            <h2 class="mb-4">Ready to Join Our Community?</h2>
+            <p class="lead mb-5">Whether you want to buy local or grow your small business, we make it simple and safe.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="register.html" class="btn btn-light btn-lg px-4">Sign Up Free</a>
+                <a href="contact.html" class="btn btn-outline-light btn-lg px-4">Contact Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (same as index.php) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Edu C2C</h5>
+                    <p>Empowering South Africa's informal economy through technology.</p>
+                    <div class="social-icons">
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.php" class="text-white">Home</a></li>
+                        <li><a href="listings.php" class="text-white">Browse Listings</a></li>
+                        <li><a href="sell.html" class="text-white">Sell Products</a></li>
+                        <li><a href="about.html" class="text-white">How It Works</a></li>
+                        <li><a href="contact.html" class="text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Categories</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="listings.php?category=produce" class="text-white">Fresh Produce</a></li>
+                        <li><a href="listings.php?category=handicrafts" class="text-white">Handicrafts</a></li>
+                        <li><a href="listings.php?category=clothing" class="text-white">Clothing</a></li>
+                        <li><a href="listings.php?category=electronics" class="text-white">Electronics</a></li>
+                        <li><a href="listings.php?category=barter" class="text-white">Barter Offers</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Support</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Help Center</a></li>
+                        <li><a href="#" class="text-white">Safety Tips</a></li>
+                        <li><a href="#" class="text-white">Digital Literacy</a></li>
+                        <li><a href="#" class="text-white">Payment Options</a></li>
+                        <li><a href="#" class="text-white">Community Guidelines</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="small mb-0">© 2025 Edu C2C Platform. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white small me-3">Privacy Policy</a>
+                    <a href="#" class="text-white small me-3">Terms of Service</a>
+                    <a href="#" class="text-white small">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
