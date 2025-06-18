@@ -30,7 +30,7 @@
                         <a class="nav-link" href="listings.php">Browse</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="sell.html">Sell</a>
+                        <a class="nav-link" href="sell.php">Sell</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="about.html">About</a>
@@ -38,7 +38,7 @@
                 </ul>
                 <div class="d-flex">
                     <a href="login.html" class="btn btn-outline-primary me-2">Login</a>
-                    <a href="register.html" class="btn btn-primary">Register</a>
+                    <a href="register.php" class="btn btn-primary">Register</a>
                     <button id="lowDataToggle" class="btn btn-sm btn-outline-secondary ms-2" title="Toggle Low Data Mode">
                         <i class="fas fa-network-wired"></i>
                     </button>
@@ -507,7 +507,7 @@
                     <ul class="list-unstyled">
                         <li><a href="index.php" class="text-white">Home</a></li>
                         <li><a href="listings.php" class="text-white">Browse Listings</a></li>
-                        <li><a href="sell.html" class="text-white">Sell Products</a></li>
+                        <li><a href="sell.php" class="text-white">Sell Products</a></li>
                         <li><a href="about.html" class="text-white">How It Works</a></li>
                         <li><a href="contact.html" class="text-white">Contact Us</a></li>
                     </ul>
