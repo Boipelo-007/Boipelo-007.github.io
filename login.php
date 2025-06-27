@@ -1,11 +1,10 @@
 <?php
-session_start();
+/**
+ * Fixed Login System - Edu C2C Marketplace
+ * Handles authentication with proper redirects and session management
+ */
 
-// Redirect if already logged in
-if (isset($_SESSION['user_id'])) {
-    header('Location: listings.php');
-    exit();
-}
+session_start();
 
 // Database configuration
 require_once 'config/database.php';
@@ -13,10 +12,17 @@ require_once 'config/database.php';
 $error_message = '';
 $success_message = '';
 
+// Check if already logged in and redirect appropriately
+if (isset($_SESSION['user_id'])) {
+    $redirect_url = $_SESSION['user_type'] === 'seller' ? 'seller-dashboard.php' : 'index.php';
+    header('Location: ' . $redirect_url);
+    exit();
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email_or_phone = trim($_POST['loginEmail']);
-    $password = $_POST['loginPassword'];
+    $email_or_phone = trim($_POST['loginEmail'] ?? '');
+    $password = $_POST['loginPassword'] ?? '';
     $remember_me = isset($_POST['rememberMe']);
     
     // Validation
@@ -24,55 +30,128 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Please fill in all required fields.';
     } else {
         try {
+            $pdo = getDatabase();
+            
             // Check if input is email or phone
             $is_email = filter_var($email_or_phone, FILTER_VALIDATE_EMAIL);
             
             if ($is_email) {
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND is_active = 1");
             } else {
                 // Clean phone number (remove +27 prefix if present)
                 $phone = preg_replace('/^\+27/', '', $email_or_phone);
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE phone = ? AND status = 'active'");
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE phone_number = ? AND is_active = 1");
+                $email_or_phone = $phone; // Use cleaned phone number
             }
             
             $stmt->execute([$email_or_phone]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($user && password_verify($password, $user['password'])) {
-                // Login successful
-                $_SESSION['user_id'] = $user['id'];
+            if ($user && password_verify($password, $user['password_hash'])) {
+                // Login successful - Set session variables
+                $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['user_type'] = $user['user_type'];
                 $_SESSION['first_name'] = $user['first_name'];
                 $_SESSION['last_name'] = $user['last_name'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['is_verified'] = $user['is_verified'];
+                $_SESSION['logged_in'] = true;
+                $_SESSION['login_time'] = time();
                 
                 // Update last login
-                $update_stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-                $update_stmt->execute([$user['id']]);
+                $update_stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE user_id = ?");
+                $update_stmt->execute([$user['user_id']]);
                 
-                // Handle remember me
+                // Handle remember me functionality
                 if ($remember_me) {
                     $token = bin2hex(random_bytes(32));
-                    setcookie('remember_token', $token, time() + (30 * 24 * 60 * 60), '/', '', true, true);
+                    $expires = time() + (30 * 24 * 60 * 60); // 30 days
                     
-                    // Store token in database
-                    $token_stmt = $pdo->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
-                    $token_stmt->execute([hash('sha256', $token), $user['id']]);
+                    // Set secure cookie
+                    setcookie('remember_token', $token, $expires, '/', '', 
+                        isset($_SERVER['HTTPS']), true);
+                    
+                    // Store hashed token in database
+                    $token_stmt = $pdo->prepare("UPDATE users SET remember_token = ?, remember_token_expires = FROM_UNIXTIME(?) WHERE user_id = ?");
+                    $token_stmt->execute([hash('sha256', $token), $expires, $user['user_id']]);
                 }
                 
-                // Redirect based on user type
-                if ($user['user_type'] === 'seller') {
-                    header('Location: https://edumarket.lovestoblog.com/listings.php');
+                // Determine redirect URL
+                $redirect_url = 'index.php'; // Default redirect
+                
+                // Check for intended destination
+                if (isset($_SESSION['intended_url'])) {
+                    $redirect_url = $_SESSION['intended_url'];
+                    unset($_SESSION['intended_url']);
                 } else {
-                    header('Location: https://edumarket.lovestoblog.com/listings.php');
+                    // Redirect based on user type
+                    switch ($user['user_type']) {
+                        case 'seller':
+                            $redirect_url = 'seller-dashboard.php';
+                            break;
+                        case 'admin':
+                            $redirect_url = 'admin/dashboard.php';
+                            break;
+                        default:
+                            $redirect_url = 'index.php';
+                            break;
+                    }
                 }
+                
+                // Redirect with success
+                header('Location: ' . $redirect_url);
                 exit();
+                
             } else {
-                $error_message = 'Invalid credentials. Please try again.';
+                $error_message = 'Invalid email/phone or password. Please try again.';
             }
+            
         } catch (PDOException $e) {
-            $error_message = 'An error occurred. Please try again later.';
             error_log('Login error: ' . $e->getMessage());
+            $error_message = 'A system error occurred. Please try again later.';
         }
+    }
+}
+
+// Check for remember me token on page load
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    try {
+        $pdo = getDatabase();
+        $token_hash = hash('sha256', $_COOKIE['remember_token']);
+        
+        $stmt = $pdo->prepare("
+            SELECT * FROM users 
+            WHERE remember_token = ? 
+            AND remember_token_expires > NOW() 
+            AND is_active = TRUE
+        ");
+        $stmt->execute([$token_hash]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            // Auto-login user
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['user_type'] = $user['user_type'];
+            $_SESSION['first_name'] = $user['first_name'];
+            $_SESSION['last_name'] = $user['last_name'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['is_verified'] = $user['is_verified'];
+            $_SESSION['logged_in'] = true;
+            $_SESSION['login_time'] = time();
+            
+            // Update last login
+            $update_stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE user_id = ?");
+            $update_stmt->execute([$user['user_id']]);
+            
+            // Redirect to appropriate page
+            $redirect_url = $user['user_type'] === 'seller' ? 'seller-dashboard.php' : 'index.php';
+            header('Location: ' . $redirect_url);
+            exit();
+        }
+    } catch (Exception $e) {
+        error_log('Remember token error: ' . $e->getMessage());
+        // Clear invalid cookie
+        setcookie('remember_token', '', time() - 3600, '/');
     }
 }
 ?>
@@ -91,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <!-- Navigation (minimal version) -->
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="index.php">
@@ -104,6 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="index.php">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="listings.php">Browse</a>
                     </li>
                 </ul>
                 <div class="d-flex">
@@ -125,67 +207,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <?php if (!empty($error_message)): ?>
-                            <div class="alert alert-danger" role="alert">
-                                <i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($error_message); ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($error_message); ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         <?php endif; ?>
                         
                         <?php if (!empty($success_message)): ?>
-                            <div class="alert alert-success" role="alert">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 <i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($success_message); ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         <?php endif; ?>
                         
-                        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" id="loginForm">
+                        <form id="loginForm" method="POST" action="login.php">
                             <div class="mb-4">
-                                <label for="loginEmail" class="form-label">Email or Phone Number*</label>
-                                <input type="text" class="form-control form-control-lg" id="loginEmail" name="loginEmail" 
-                                       value="<?php echo isset($_POST['loginEmail']) ? htmlspecialchars($_POST['loginEmail']) : ''; ?>" required>
+                                <label for="loginEmail" class="form-label">Email or Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="loginEmail" name="loginEmail" 
+                                           value="<?php echo htmlspecialchars($_POST['loginEmail'] ?? ''); ?>"
+                                           placeholder="Enter your email or phone number" required>
+                                </div>
                             </div>
                             
                             <div class="mb-4">
-                                <label for="loginPassword" class="form-label">Password*</label>
-                                <div class="position-relative">
-                                    <input type="password" class="form-control form-control-lg" id="loginPassword" name="loginPassword" required>
-                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2" 
-                                            onclick="togglePassword('loginPassword')" style="border: none; background: none;">
+                                <label for="loginPassword" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="loginPassword" name="loginPassword" 
+                                           placeholder="Enter your password" required>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('loginPassword')">
                                         <i class="fas fa-eye" id="loginPassword-icon"></i>
                                     </button>
                                 </div>
-                                <div class="d-flex justify-content-between mt-2">
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-6">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
                                         <label class="form-check-label" for="rememberMe">Remember me</label>
                                     </div>
-                                    <a href="forgot-password.php" class="text-primary">Forgot password?</a>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <a href="forgot-password.php" class="text-primary text-decoration-none">Forgot password?</a>
                                 </div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 mb-4">
-                                <span class="spinner-border spinner-border-sm me-2 d-none" id="loginSpinner" role="status"></span>
+                            <button type="submit" class="btn btn-primary w-100 py-3 mb-4">
+                                <span class="d-none spinner-border spinner-border-sm me-2" id="loginSpinner"></span>
                                 Sign In
                             </button>
-                            
-                            <div class="text-center mb-4 position-relative">
-                                <hr>
-                                <span class="bg-white px-3 position-absolute top-50 start-50 translate-middle">Or</span>
-                            </div>
-                            
-                            <div class="d-grid gap-3">
-                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="socialLogin('google')">
-                                    <i class="fab fa-google me-2"></i> Continue with Google
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="socialLogin('facebook')">
-                                    <i class="fab fa-facebook-f me-2"></i> Continue with Facebook
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="socialLogin('whatsapp')">
-                                    <i class="fab fa-whatsapp me-2"></i> Continue with WhatsApp
-                                </button>
-                            </div>
                         </form>
-                    </div>
-                    <div class="card-footer bg-white text-center py-3">
-                        <p class="mb-0">Don't have an account? <a href="register.php" class="text-primary">Sign up</a></p>
+                        
+                        <div class="text-center">
+                            <p class="mb-0">Don't have an account? <a href="register.php" class="text-primary">Sign up</a></p>
+                        </div>
                     </div>
                 </div>
                 
@@ -196,17 +274,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </main>
 
-    <!-- Footer (minimal version) -->
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="row">
                 <div class="col-12 text-center">
-                    <div class="social-icons mb-3">
-                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-whatsapp"></i></a>
-                    </div>
                     <p class="small mb-0">© 2025 Edu C2C Platform. All rights reserved.</p>
                 </div>
             </div>
@@ -214,7 +286,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         // Toggle password visibility
@@ -233,7 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Handle form submission
+        // Handle form submission with loading state
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');
             const spinner = document.getElementById('loginSpinner');
@@ -241,25 +313,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Show loading state
             submitBtn.disabled = true;
             spinner.classList.remove('d-none');
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
         });
-
-        // Social login handlers (placeholder functions)
-        function socialLogin(provider) {
-            alert('Social login with ' + provider + ' will be implemented with OAuth integration.');
-            // Implement actual social login here
-        }
-
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                alert.style.transition = 'opacity 0.5s';
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    alert.remove();
-                }, 500);
-            });
-        }, 5000);
     </script>
 </body>
 </html>

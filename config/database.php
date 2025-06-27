@@ -1,6 +1,6 @@
 <?php
 /**
- * Database Configuration
+ * Fixed Database Configuration
  * Eduvos C2C Marketplace
  */
 
@@ -24,25 +24,19 @@ function getDatabase() {
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
             ];
             
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            
+            // Test the connection
+            $pdo->query("SELECT 1");
+            
         } catch (PDOException $e) {
             error_log("Database connection failed: " . $e->getMessage());
             
-            // Return error response for AJAX requests
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => false,
-                    'error' => 'Database connection failed',
-                    'debug' => $e->getMessage()
-                ]);
-                exit;
-            }
-            
-            throw new Exception("Database connection failed");
+            // Instead of die(), throw an exception that can be caught
+            throw new Exception('Database connection failed: ' . $e->getMessage());
         }
     }
     
@@ -63,5 +57,19 @@ function testDatabaseConnection() {
         return false;
     }
 }
+
+/**
+ * Initialize error logging
+ */
+ini_set('display_errors', 0); // Don't display errors to users
+ini_set('log_errors', 1);
+
+// Create logs directory if it doesn't exist
+$logDir = __DIR__ . '/../logs';
+if (!is_dir($logDir)) {
+    @mkdir($logDir, 0755, true);
+}
+
+ini_set('error_log', $logDir . '/php_errors.log');
 
 ?>

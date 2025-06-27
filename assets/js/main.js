@@ -1474,527 +1474,73 @@ if (typeof EduvosC2C !== 'undefined') {
 }
 
 // Enhanced Listings Manager that integrates with existing functionality
-class EnhancedListingsManager {
+/**
+ * Fixed Listings Manager JavaScript
+ * Handles listings display with proper error handling and JSON parsing
+ */
+
+class ListingsManager {
     constructor() {
         this.currentPage = 1;
-        this.pageSize = EduvosC2C?.listings?.config?.defaultPageSize || 12;
-        this.currentSort = 'newest';
-        this.currentFilters = {
+        this.pageSize = 12;
+        this.isLoading = false;
+        this.filters = {
             search: '',
-            category: [],
+            category: '',
             location: '',
             minPrice: '',
             maxPrice: '',
-            condition: [],
+            condition: '',
             verified: false,
             barter: false,
-            offers: false
+            offers: false,
+            sort: 'newest'
         };
-        this.isLoading = false;
-        this.viewMode = 'grid';
-        this.categories = [];
-        this.searchCache = new Map();
-        this.debounceTimer = null;
         
         this.init();
     }
     
     init() {
-        this.loadCategories();
         this.bindEvents();
-        this.loadFromURL();
         this.loadListings();
-        this.initSearchTypeahead();
-        
-        // Integrate with existing analytics
-        if (typeof Analytics !== 'undefined') {
-            Analytics.sendEvent('page_view', {
-                page: 'listings',
-                filters: this.currentFilters
-            });
-        }
+        this.loadFilters();
     }
     
     bindEvents() {
-        // Search functionality with debouncing
-        const searchInput = document.getElementById('searchInput');
-        const searchButton = document.getElementById('searchButton');
-        
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(this.debounceTimer);
-                this.debounceTimer = setTimeout(() => {
-                    this.handleSearchSuggestions(e.target.value);
-                }, 300);
-            });
-            
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.handleSearch();
-                }
+        // Search form
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleSearch();
             });
         }
         
-        if (searchButton) {
-            searchButton.addEventListener('click', () => this.handleSearch());
+        // Filter form
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleFilter();
+            });
         }
-        
-        // View toggle
-        const gridView = document.getElementById('gridView');
-        const listView = document.getElementById('listView');
-        
-        if (gridView) gridView.addEventListener('click', () => this.setViewMode('grid'));
-        if (listView) listView.addEventListener('click', () => this.setViewMode('list'));
         
         // Sort dropdown
-        document.querySelectorAll('[data-sort]').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.setSort(e.target.dataset.sort);
-            });
-        });
-        
-        // Filter controls
-        const applyFilters = document.getElementById('applyFilters');
-        const clearFilters = document.getElementById('clearFilters');
-        const clearAllFilters = document.getElementById('clearAllFilters');
-        
-        if (applyFilters) applyFilters.addEventListener('click', () => this.applyFilters());
-        if (clearFilters) clearFilters.addEventListener('click', () => this.clearFilters());
-        if (clearAllFilters) clearAllFilters.addEventListener('click', () => this.clearFilters());
-        
-        // Price range
-        const priceRange = document.getElementById('priceRange');
-        if (priceRange) {
-            priceRange.addEventListener('input', (e) => {
-                const maxPriceInput = document.getElementById('maxPrice');
-                if (maxPriceInput) {
-                    maxPriceInput.value = e.target.value;
-                }
-            });
-        }
-        
-        // Location filter
-        const locationFilter = document.getElementById('locationFilter');
-        if (locationFilter) {
-            locationFilter.addEventListener('change', (e) => {
-                this.currentFilters.location = e.target.value;
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                this.filters.sort = e.target.value;
+                this.currentPage = 1;
                 this.loadListings();
-                
-                // Track location filter usage
-                if (typeof Analytics !== 'undefined') {
-                    Analytics.sendEvent('filter_applied', {
-                        filter_type: 'location',
-                        filter_value: e.target.value
-                    });
-                }
             });
         }
         
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch (e.key) {
-                    case 'f':
-                        e.preventDefault();
-                        if (searchInput) searchInput.focus();
-                        break;
-                    case 'r':
-                        e.preventDefault();
-                        this.clearFilters();
-                        break;
-                }
-            }
-        });
-    }
-    
-    async loadCategories() {
-        try {
-            const endpoint = EduvosC2C?.listings?.config?.categoriesEndpoint || 'server/get_categories.php';
-            const response = await fetch(endpoint);
-            const result = await response.json();
-            
-            if (result.success) {
-                this.categories = result.data;
-                this.renderCategoryFilters();
-            } else {
-                throw new Error(result.error);
-            }
-        } catch (error) {
-            console.error('Failed to load categories:', error);
-            this.renderCategoryFilters(this.getFallbackCategories());
-            
-            // Show user-friendly message
-            if (typeof Utils !== 'undefined') {
-                Utils.showToast('Unable to load categories. Using defaults.', 'warning');
-            }
-        }
-    }
-    
-    getFallbackCategories() {
-        return [
-            {category_id: 1, category_name: 'Fresh Produce', category_slug: 'produce'},
-            {category_id: 2, category_name: 'Handicrafts', category_slug: 'handicrafts'},
-            {category_id: 3, category_name: 'Clothing', category_slug: 'clothing'},
-            {category_id: 4, category_name: 'Electronics', category_slug: 'electronics'},
-            {category_id: 5, category_name: 'Home Goods', category_slug: 'home'},
-            {category_id: 6, category_name: 'Barter Offers', category_slug: 'barter'}
-        ];
-    }
-    
-    renderCategoryFilters(fallbackCategories = null) {
-        const container = document.getElementById('categoryFilters');
-        if (!container) return;
-        
-        const categories = fallbackCategories || this.categories || [];
-        
-        container.innerHTML = categories.map(category => {
-            const subcategoriesHtml = category.subcategories && category.subcategories.length > 0 
-                ? category.subcategories.map(sub => `
-                    <div class="form-check ms-3">
-                        <input class="form-check-input category-filter" type="checkbox" 
-                               id="category-${sub.category_slug}" 
-                               value="${sub.category_id}">
-                        <label class="form-check-label text-muted" for="category-${sub.category_slug}">
-                            ${sub.category_name} ${sub.listing_count ? `(${sub.listing_count})` : ''}
-                        </label>
-                    </div>
-                `).join('')
-                : '';
-            
-            return `
-                <div class="mb-2">
-                    <div class="form-check">
-                        <input class="form-check-input category-filter" type="checkbox" 
-                               id="category-${category.category_slug}" 
-                               value="${category.category_id}">
-                        <label class="form-check-label fw-bold" for="category-${category.category_slug}">
-                            <i class="${category.icon_class || 'fas fa-tag'} me-2"></i>
-                            ${category.category_name} ${category.listing_count ? `(${category.listing_count})` : ''}
-                        </label>
-                    </div>
-                    ${subcategoriesHtml}
-                </div>
-            `;
-        }).join('');
-        
-        // Bind category filter events
-        container.querySelectorAll('.category-filter').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                this.updateCategoryFilters();
-                
-                // Track category filter usage
-                if (typeof Analytics !== 'undefined' && checkbox.checked) {
-                    Analytics.sendEvent('filter_applied', {
-                        filter_type: 'category',
-                        filter_value: checkbox.value
-                    });
-                }
+        // Clear filters button
+        const clearFiltersBtn = document.getElementById('clearFilters');
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', () => {
+                this.clearFilters();
             });
-        });
-    }
-    
-    updateCategoryFilters() {
-        const checkedCategories = Array.from(document.querySelectorAll('.category-filter:checked'))
-            .map(cb => cb.value);
-        this.currentFilters.category = checkedCategories;
-    }
-    
-    loadFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // Load category from URL
-        const categoryParam = urlParams.get('category');
-        if (categoryParam) {
-            setTimeout(() => {
-                const categoryCheckbox = document.getElementById(`category-${categoryParam}`);
-                if (categoryCheckbox) {
-                    categoryCheckbox.checked = true;
-                    this.updateCategoryFilters();
-                }
-            }, 100);
-        }
-        
-        // Load search term
-        const searchParam = urlParams.get('search');
-        if (searchParam) {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.value = searchParam;
-                this.currentFilters.search = searchParam;
-            }
-        }
-        
-        // Load location
-        const locationParam = urlParams.get('location');
-        if (locationParam) {
-            const locationFilter = document.getElementById('locationFilter');
-            if (locationFilter) {
-                locationFilter.value = locationParam;
-                this.currentFilters.location = locationParam;
-            }
-        }
-    }
-    
-    initSearchTypeahead() {
-        const searchInput = document.getElementById('searchInput');
-        if (!searchInput) return;
-        
-        // Create suggestions dropdown
-        const suggestionsContainer = document.createElement('div');
-        suggestionsContainer.className = 'search-suggestions position-absolute w-100 bg-white border rounded shadow-sm';
-        suggestionsContainer.style.cssText = 'top: 100%; left: 0; z-index: 1000; display: none; max-height: 300px; overflow-y: auto;';
-        
-        const parentContainer = searchInput.closest('.input-group') || searchInput.parentElement;
-        parentContainer.style.position = 'relative';
-        parentContainer.appendChild(suggestionsContainer);
-        
-        // Hide suggestions when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!parentContainer.contains(e.target)) {
-                suggestionsContainer.style.display = 'none';
-            }
-        });
-    }
-    
-    async handleSearchSuggestions(query) {
-        if (!query || query.length < 2) {
-            this.hideSuggestions();
-            return;
-        }
-        
-        try {
-            // Check cache first
-            const cacheKey = `suggestions_${query.toLowerCase()}`;
-            if (this.searchCache.has(cacheKey)) {
-                this.showSuggestions(this.searchCache.get(cacheKey));
-                return;
-            }
-            
-            const endpoint = EduvosC2C?.listings?.config?.searchEndpoint || 'server/search_listings.php';
-            const response = await fetch(`${endpoint}?q=${encodeURIComponent(query)}&limit=5`);
-            const result = await response.json();
-            
-            if (result.success) {
-                const suggestions = [
-                    ...result.data.suggestions.slice(0, 3),
-                    ...result.data.categories.slice(0, 2).map(cat => ({
-                        type: 'category',
-                        text: cat.category_name
-                    }))
-                ];
-                
-                this.searchCache.set(cacheKey, suggestions);
-                this.showSuggestions(suggestions);
-            }
-        } catch (error) {
-            console.error('Search suggestions failed:', error);
-        }
-    }
-    
-    showSuggestions(suggestions) {
-        const container = document.querySelector('.search-suggestions');
-        if (!container || !suggestions.length) return;
-        
-        container.innerHTML = suggestions.map((suggestion, index) => `
-            <div class="suggestion-item p-2 cursor-pointer hover:bg-light" data-text="${suggestion.text}">
-                <i class="fas fa-${suggestion.type === 'category' ? 'tag' : 'search'} me-2 text-muted"></i>
-                ${suggestion.text}
-                ${suggestion.type === 'category' ? '<small class="text-muted ms-2">(Category)</small>' : ''}
-            </div>
-        `).join('');
-        
-        container.style.display = 'block';
-        
-        // Bind suggestion click events
-        container.querySelectorAll('.suggestion-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {
-                    searchInput.value = item.dataset.text;
-                    this.handleSearch();
-                }
-                container.style.display = 'none';
-            });
-        });
-    }
-    
-    hideSuggestions() {
-        const container = document.querySelector('.search-suggestions');
-        if (container) {
-            container.style.display = 'none';
-        }
-    }
-    
-    handleSearch() {
-        const searchInput = document.getElementById('searchInput');
-        if (!searchInput) return;
-        
-        const searchTerm = searchInput.value.trim();
-        this.currentFilters.search = searchTerm;
-        this.currentPage = 1;
-        this.hideSuggestions();
-        
-        // Update URL
-        const url = new URL(window.location);
-        if (searchTerm) {
-            url.searchParams.set('search', searchTerm);
-        } else {
-            url.searchParams.delete('search');
-        }
-        window.history.replaceState({}, '', url);
-        
-        this.loadListings();
-        
-        // Track search
-        if (typeof Analytics !== 'undefined' && searchTerm) {
-            Analytics.sendEvent('search', {
-                query: searchTerm,
-                filters: this.currentFilters
-            });
-        }
-        
-        // Add to recent searches
-        if (typeof SearchManager !== 'undefined' && searchTerm) {
-            SearchManager.addToRecentSearches(searchTerm);
-        }
-    }
-    
-    setViewMode(mode) {
-        this.viewMode = mode;
-        
-        // Update button states
-        const gridView = document.getElementById('gridView');
-        const listView = document.getElementById('listView');
-        
-        if (gridView) gridView.classList.toggle('active', mode === 'grid');
-        if (listView) listView.classList.toggle('active', mode === 'list');
-        
-        // Update grid class
-        const grid = document.getElementById('listingsGrid');
-        if (grid) {
-            grid.classList.toggle('list-view', mode === 'list');
-        }
-        
-        // Save preference
-        localStorage.setItem('listingsViewMode', mode);
-        
-        // Track view mode change
-        if (typeof Analytics !== 'undefined') {
-            Analytics.sendEvent('view_mode_changed', { mode });
-        }
-    }
-    
-    setSort(sortType) {
-        this.currentSort = sortType;
-        
-        // Update dropdown text
-        const sortTexts = {
-            newest: 'Newest',
-            oldest: 'Oldest',
-            price_low: 'Price: Low to High',
-            price_high: 'Price: High to Low',
-            distance: 'Distance',
-            popular: 'Most Popular'
-        };
-        
-        const sortDropdown = document.getElementById('sortDropdown');
-        if (sortDropdown) {
-            sortDropdown.textContent = `Sort by: ${sortTexts[sortType]}`;
-        }
-        
-        this.loadListings();
-        
-        // Track sort change
-        if (typeof Analytics !== 'undefined') {
-            Analytics.sendEvent('sort_changed', { sort_type: sortType });
-        }
-    }
-    
-    applyFilters() {
-        // Gather all filter values
-        const minPriceInput = document.getElementById('minPrice');
-        const maxPriceInput = document.getElementById('maxPrice');
-        
-        if (minPriceInput) this.currentFilters.minPrice = minPriceInput.value;
-        if (maxPriceInput) this.currentFilters.maxPrice = maxPriceInput.value;
-        
-        this.currentFilters.condition = Array.from(document.querySelectorAll('input[id^="condition-"]:checked'))
-            .map(cb => cb.value);
-        
-        const verifiedCheckbox = document.getElementById('seller-verified');
-        const barterCheckbox = document.getElementById('barter-available');
-        const offersCheckbox = document.getElementById('offers-accepted');
-        
-        if (verifiedCheckbox) this.currentFilters.verified = verifiedCheckbox.checked;
-        if (barterCheckbox) this.currentFilters.barter = barterCheckbox.checked;
-        if (offersCheckbox) this.currentFilters.offers = offersCheckbox.checked;
-        
-        this.currentPage = 1;
-        this.loadListings();
-        
-        // Track filter application
-        if (typeof Analytics !== 'undefined') {
-            Analytics.sendEvent('filters_applied', {
-                filter_count: Object.values(this.currentFilters).filter(v => 
-                    v && (Array.isArray(v) ? v.length > 0 : true)
-                ).length
-            });
-        }
-        
-        // Show feedback
-        if (typeof Utils !== 'undefined') {
-            Utils.showToast('Filters applied successfully', 'success');
-        }
-    }
-    
-    clearFilters() {
-        // Reset all filter inputs
-        document.querySelectorAll('.form-check-input').forEach(cb => cb.checked = false);
-        
-        const inputs = ['minPrice', 'maxPrice', 'searchInput'];
-        inputs.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) element.value = '';
-        });
-        
-        const priceRange = document.getElementById('priceRange');
-        const locationFilter = document.getElementById('locationFilter');
-        
-        if (priceRange) priceRange.value = 5000;
-        if (locationFilter) locationFilter.value = '';
-        
-        // Reset filter object
-        this.currentFilters = {
-            search: '',
-            category: [],
-            location: '',
-            minPrice: '',
-            maxPrice: '',
-            condition: [],
-            verified: false,
-            barter: false,
-            offers: false
-        };
-        
-        this.currentPage = 1;
-        
-        // Update URL
-        const url = new URL(window.location);
-        url.search = '';
-        window.history.replaceState({}, '', url);
-        
-        this.loadListings();
-        
-        // Track filter clear
-        if (typeof Analytics !== 'undefined') {
-            Analytics.sendEvent('filters_cleared', {});
-        }
-        
-        // Show feedback
-        if (typeof Utils !== 'undefined') {
-            Utils.showToast('All filters cleared', 'info');
         }
     }
     
@@ -2008,209 +1554,150 @@ class EnhancedListingsManager {
             const params = new URLSearchParams({
                 page: this.currentPage,
                 limit: this.pageSize,
-                sort: this.currentSort,
-                ...this.currentFilters,
-                category: this.currentFilters.category.join(','),
-                condition: this.currentFilters.condition.join(',')
+                ...this.filters
             });
             
-            // Remove empty parameters
-            for (const [key, value] of [...params]) {
+            // Remove empty filters
+            for (const [key, value] of params.entries()) {
                 if (!value || value === 'false') {
                     params.delete(key);
                 }
             }
             
-            const endpoint = EduvosC2C?.listings?.config?.apiEndpoint || 'server/get_listings.php';
-            const response = await fetch(`${endpoint}?${params}`);
+            console.log('Loading listings with params:', params.toString());
             
+            const response = await fetch(`server/get_listings.php?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // Check if response is ok
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const result = await response.json();
+            // Get response text first to debug JSON parsing issues
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
             
-            if (result.success) {
-                this.renderListings(result.data.listings);
-                this.renderPagination(result.data.pagination);
-                this.updateResultsCount(result.data.total);
-                
-                // Update favorites for logged-in users
-                if (typeof FavoritesManager !== 'undefined') {
-                    FavoritesManager.updateDisplayedFavorites();
-                }
+            // Check if response is empty
+            if (!responseText.trim()) {
+                throw new Error('Empty response received from server');
+            }
+            
+            // Try to parse JSON
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON Parse Error:', parseError);
+                console.error('Response text:', responseText);
+                throw new Error('Invalid JSON response from server');
+            }
+            
+            console.log('Parsed data:', data);
+            
+            if (data.success) {
+                this.renderListings(data.data.listings);
+                this.renderPagination(data.data.pagination);
+                this.updateResultsCount(data.data.total);
             } else {
-                throw new Error(result.error || 'Failed to load listings');
+                throw new Error(data.error || 'Failed to load listings');
             }
-        } catch (error) {
-            console.error('Failed to load listings:', error);
-            this.showError(error.message);
             
-            // Track error
-            if (typeof Analytics !== 'undefined') {
-                Analytics.sendEvent('listing_load_error', {
-                    error: error.message,
-                    filters: this.currentFilters
-                });
-            }
+        } catch (error) {
+            console.error('Error loading listings:', error);
+            this.showError(error.message);
         } finally {
             this.isLoading = false;
             this.hideLoading();
         }
     }
     
-    showLoading() {
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const listingsGrid = document.getElementById('listingsGrid');
-        const noResults = document.getElementById('noResults');
-        const paginationContainer = document.getElementById('paginationContainer');
-        
-        if (loadingSpinner) loadingSpinner.style.display = 'block';
-        if (listingsGrid) listingsGrid.style.display = 'none';
-        if (noResults) noResults.classList.add('d-none');
-        if (paginationContainer) paginationContainer.classList.add('d-none');
-    }
-    
-    hideLoading() {
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const listingsGrid = document.getElementById('listingsGrid');
-        
-        if (loadingSpinner) loadingSpinner.style.display = 'none';
-        if (listingsGrid) listingsGrid.style.display = 'flex';
-    }
-    
     renderListings(listings) {
         const container = document.getElementById('listingsGrid');
-        if (!container) return;
-        
-        if (!listings || listings.length === 0) {
-            container.innerHTML = '';
-            const noResults = document.getElementById('noResults');
-            if (noResults) noResults.classList.remove('d-none');
+        if (!container) {
+            console.error('Listings container not found');
             return;
         }
         
-        const noResults = document.getElementById('noResults');
-        if (noResults) noResults.classList.add('d-none');
-        
-        container.innerHTML = listings.map(listing => this.createListingCard(listing)).join('');
-        
-        // Initialize lazy loading for images if supported
-        if ('IntersectionObserver' in window && typeof UIEnhancements !== 'undefined') {
-            UIEnhancements.initImageLazyLoading();
-        }
-    }
-    
-    createListingCard(listing) {
-        const verifiedBadge = listing.seller_verified ? 
-            '<span class="badge badge-verified text-white ms-1"><i class="fas fa-check-circle"></i> Verified</span>' : '';
-        
-        const barterBadge = listing.allow_barter ? 
-            '<span class="badge bg-success position-absolute top-0 end-0 m-2">Barter Available</span>' : '';
-        
-        const featuredBadge = listing.is_featured ? 
-            '<span class="badge bg-warning position-absolute top-0 start-0 m-2">Featured</span>' : '';
-        
-        const price = listing.price == 0 ? 'Free' : `R${parseFloat(listing.price).toLocaleString()}`;
-        
-        const favoriteClass = typeof FavoritesManager !== 'undefined' && FavoritesManager.isFavorite(listing.listing_id) ? 
-            'fas text-danger' : 'far';
-        
-        const imageUrl = listing.image_url || this.getDefaultImage(listing.category_slug);
-        const imageLoading = EduvosC2C?.config?.lowDataMode ? 'lazy' : 'eager';
-        
-        return `
-            <div class="col-md-6 col-lg-4 mb-4" data-listing-id="${listing.listing_id}">
-                <div class="card h-100 listing-card" data-track="listing_view">
-                    <div class="position-relative">
-                        <img src="${imageUrl}" 
-                             class="card-img-top" 
-                             alt="${listing.title}" 
-                             style="height: 200px; object-fit: cover;"
-                             loading="${imageLoading}"
-                             onerror="this.src='${this.getDefaultImage('default')}'">
-                        ${barterBadge}
-                        ${featuredBadge}
-                        <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 btn-favorite" 
-                                data-listing-id="${listing.listing_id}"
-                                style="border-radius: 50%; width: 35px; height: 35px; ${barterBadge ? 'top: 40px !important;' : ''}"
-                                title="Add to favorites">
-                            <i class="${favoriteClass} fa-heart"></i>
+        if (!listings || listings.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No listings found</h5>
+                        <p class="text-muted">Try adjusting your search criteria or browse all listings.</p>
+                        <button class="btn btn-primary" onclick="window.listingsManager?.clearFilters()">
+                            Clear Filters
                         </button>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title text-truncate">${listing.title}</h5>
-                            <span class="text-primary fw-bold">${price}</span>
-                        </div>
-                        <p class="card-text text-muted small mb-2">
-                            <i class="fas fa-map-marker-alt me-1"></i>
-                            ${listing.location} • ${listing.distance}
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <span class="badge bg-light text-dark">${listing.category_name}</span>
-                                ${verifiedBadge}
+                </div>
+            `;
+            return;
+        }
+        
+        const listingsHTML = listings.map(listing => `
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 listing-card">
+                    <div class="position-relative">
+                        <img src="${this.escapeHtml(listing.image_url || '/assets/images/placeholder.jpg')}" 
+                             class="card-img-top" alt="${this.escapeHtml(listing.title)}"
+                             style="height: 250px; object-fit: cover;"
+                             onerror="this.src='/assets/images/placeholder.jpg'">
+                        ${listing.is_featured ? '<span class="badge bg-warning position-absolute top-0 start-0 m-2"><i class="fas fa-star me-1"></i>Featured</span>' : ''}
+                        ${listing.seller_verified ? '<span class="badge bg-success position-absolute top-0 end-0 m-2"><i class="fas fa-check-circle me-1"></i>Verified</span>' : ''}
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">${this.escapeHtml(listing.title)}</h5>
+                        <p class="card-text text-muted flex-grow-1">${this.escapeHtml(listing.description)}</p>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 text-primary mb-0">${this.escapeHtml(listing.price)}</span>
+                                ${listing.allow_barter ? '<span class="badge bg-info"><i class="fas fa-exchange-alt me-1"></i>Barter</span>' : ''}
                             </div>
+                        </div>
+                        <div class="mb-2">
                             <small class="text-muted">
-                                <i class="fas fa-clock me-1"></i>
-                                ${listing.time_ago}
+                                <i class="fas fa-map-marker-alt me-1"></i>${this.escapeHtml(listing.location)}
                             </small>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center text-muted small">
-                            <span>
-                                <i class="fas fa-eye me-1"></i>
-                                ${listing.views_count || 0}
-                            </span>
-                            <span>
-                                <i class="fas fa-heart me-1"></i>
-                                ${listing.favorites_count || 0}
-                            </span>
-                            ${listing.seller_rating > 0 ? `
-                                <span>
-                                    <i class="fas fa-star text-warning me-1"></i>
-                                    ${listing.seller_rating} (${listing.review_count})
-                                </span>
-                            ` : ''}
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>${this.escapeHtml(listing.time_ago)}
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-eye me-1"></i>${listing.views_count} views
+                            </small>
                         </div>
-                        <a href="product-detail.php?id=${listing.listing_id}" 
-                           class="stretched-link" 
-                           data-track="listing_click"
-                           data-listing-id="${listing.listing_id}"></a>
+                        <div class="d-flex gap-2">
+                            <a href="${listing.url}" class="btn btn-outline-primary flex-grow-1">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="toggleFavorite(${listing.listing_id})" title="Add to Favorites">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        `;
-    }
-    
-    getDefaultImage(categorySlug) {
-        const defaultImages = {
-            'produce': 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400',
-            'handicrafts': 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400',
-            'clothing': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
-            'electronics': 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400',
-            'home': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
-            'barter': 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=400',
-            'default': 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=400'
-        };
+        `).join('');
         
-        return defaultImages[categorySlug] || defaultImages['default'];
+        container.innerHTML = listingsHTML;
     }
     
     renderPagination(pagination) {
-        const paginationContainer = document.getElementById('paginationContainer');
-        if (!paginationContainer) return;
+        const container = document.getElementById('paginationContainer');
+        if (!container || !pagination) return;
         
-        if (!pagination || pagination.totalPages <= 1) {
-            paginationContainer.classList.add('d-none');
+        if (pagination.totalPages <= 1) {
+            container.innerHTML = '';
             return;
         }
         
-        paginationContainer.classList.remove('d-none');
-        const container = document.getElementById('pagination');
-        if (!container) return;
-        
-        let paginationHTML = '';
+        let paginationHTML = '<nav aria-label="Listings pagination"><ul class="pagination justify-content-center">';
         
         // Previous button
         const prevDisabled = pagination.currentPage <= 1 ? 'disabled' : '';
@@ -2234,9 +1721,9 @@ class EnhancedListingsManager {
         }
         
         for (let i = startPage; i <= endPage; i++) {
-            const active = i === pagination.currentPage ? 'active' : '';
+            const isActive = i === pagination.currentPage ? 'active' : '';
             paginationHTML += `
-                <li class="page-item ${active}">
+                <li class="page-item ${isActive}">
                     <a class="page-link" href="#" data-page="${i}">${i}</a>
                 </li>
             `;
@@ -2253,12 +1740,13 @@ class EnhancedListingsManager {
         const nextDisabled = pagination.currentPage >= pagination.totalPages ? 'disabled' : '';
         paginationHTML += `
             <li class="page-item ${nextDisabled}">
-                <a class="page-link" href="#" data-page="${pagination.currentPage + 1}">
+                <a class="page-link" href="#" data-page="${pagination.currentPage + 1}" ${nextDisabled ? 'tabindex="-1"' : ''}>
                     Next <i class="fas fa-chevron-right"></i>
                 </a>
             </li>
         `;
         
+        paginationHTML += '</ul></nav>';
         container.innerHTML = paginationHTML;
         
         // Bind pagination events
@@ -2266,22 +1754,14 @@ class EnhancedListingsManager {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (!e.target.closest('.disabled')) {
-                    const newPage = parseInt(e.target.dataset.page);
-                    if (newPage !== this.currentPage) {
-                        this.currentPage = newPage;
-                        this.loadListings();
-                        
-                        // Scroll to top of listings
-                        const listingsSection = document.getElementById('listingsGrid');
-                        if (listingsSection) {
-                            listingsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                        
-                        // Track pagination
-                        if (typeof Analytics !== 'undefined') {
-                            Analytics.sendEvent('pagination_click', { page: newPage });
-                        }
-                    }
+                    this.currentPage = parseInt(e.target.dataset.page);
+                    this.loadListings();
+                    
+                    // Scroll to top of listings
+                    document.getElementById('listingsGrid').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
                 }
             });
         });
@@ -2303,18 +1783,152 @@ class EnhancedListingsManager {
         }
     }
     
+    handleSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            this.filters.search = searchInput.value.trim();
+            this.currentPage = 1;
+            this.loadListings();
+        }
+    }
+    
+    handleFilter() {
+        // Get filter values from form
+        const categorySelect = document.getElementById('categoryFilter');
+        const locationInput = document.getElementById('locationFilter');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const conditionSelect = document.getElementById('conditionFilter');
+        const verifiedCheck = document.getElementById('verifiedOnly');
+        const barterCheck = document.getElementById('barterOnly');
+        const offersCheck = document.getElementById('offersOnly');
+        
+        if (categorySelect) this.filters.category = categorySelect.value;
+        if (locationInput) this.filters.location = locationInput.value.trim();
+        if (minPriceInput) this.filters.minPrice = minPriceInput.value;
+        if (maxPriceInput) this.filters.maxPrice = maxPriceInput.value;
+        if (conditionSelect) this.filters.condition = conditionSelect.value;
+        if (verifiedCheck) this.filters.verified = verifiedCheck.checked;
+        if (barterCheck) this.filters.barter = barterCheck.checked;
+        if (offersCheck) this.filters.offers = offersCheck.checked;
+        
+        this.currentPage = 1;
+        this.loadListings();
+    }
+    
+    clearFilters() {
+        // Reset filters
+        this.filters = {
+            search: '',
+            category: '',
+            location: '',
+            minPrice: '',
+            maxPrice: '',
+            condition: '',
+            verified: false,
+            barter: false,
+            offers: false,
+            sort: 'newest'
+        };
+        
+        // Reset form elements
+        const searchInput = document.getElementById('searchInput');
+        const categorySelect = document.getElementById('categoryFilter');
+        const locationInput = document.getElementById('locationFilter');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const conditionSelect = document.getElementById('conditionFilter');
+        const verifiedCheck = document.getElementById('verifiedOnly');
+        const barterCheck = document.getElementById('barterOnly');
+        const offersCheck = document.getElementById('offersOnly');
+        const sortSelect = document.getElementById('sortSelect');
+        
+        if (searchInput) searchInput.value = '';
+        if (categorySelect) categorySelect.value = '';
+        if (locationInput) locationInput.value = '';
+        if (minPriceInput) minPriceInput.value = '';
+        if (maxPriceInput) maxPriceInput.value = '';
+        if (conditionSelect) conditionSelect.value = '';
+        if (verifiedCheck) verifiedCheck.checked = false;
+        if (barterCheck) barterCheck.checked = false;
+        if (offersCheck) offersCheck.checked = false;
+        if (sortSelect) sortSelect.value = 'newest';
+        
+        this.currentPage = 1;
+        this.loadListings();
+    }
+    
+    async loadFilters() {
+        try {
+            // Load categories for filter dropdown
+            const categoriesResponse = await fetch('server/get_categories.php');
+            if (categoriesResponse.ok) {
+                const categoriesData = await categoriesResponse.json();
+                if (categoriesData.success) {
+                    this.populateCategoryFilter(categoriesData.data);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading filters:', error);
+        }
+    }
+    
+    populateCategoryFilter(categories) {
+        const categorySelect = document.getElementById('categoryFilter');
+        if (!categorySelect || !categories) return;
+        
+        // Clear existing options except the first one
+        while (categorySelect.children.length > 1) {
+            categorySelect.removeChild(categorySelect.lastChild);
+        }
+        
+        // Add category options
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.category_slug;
+            option.textContent = `${category.category_name} (${category.listing_count})`;
+            categorySelect.appendChild(option);
+        });
+    }
+    
+    showLoading() {
+        const container = document.getElementById('listingsGrid');
+        if (container) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading listings...</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Disable controls
+        const controls = document.querySelectorAll('#searchForm button, #filterForm button, #sortSelect');
+        controls.forEach(control => control.disabled = true);
+    }
+    
+    hideLoading() {
+        // Re-enable controls
+        const controls = document.querySelectorAll('#searchForm button, #filterForm button, #sortSelect');
+        controls.forEach(control => control.disabled = false);
+    }
+    
     showError(message = 'Unable to load listings') {
         const container = document.getElementById('listingsGrid');
         if (!container) return;
         
         container.innerHTML = `
             <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <h5>${message}</h5>
-                    <p class="text-muted">Please check your internet connection and try again.</p>
+                <div class="alert alert-danger text-center" role="alert">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h5 class="alert-heading">Error Loading Listings</h5>
+                    <p class="mb-3">${this.escapeHtml(message)}</p>
                     <button class="btn btn-primary" onclick="window.listingsManager?.loadListings()">
-                        <i class="fas fa-redo me-2"></i> Try Again
+                        <i class="fas fa-redo me-2"></i>Try Again
                     </button>
                 </div>
             </div>
@@ -2327,50 +1941,64 @@ class EnhancedListingsManager {
         }
     }
     
-    // Method to refresh listings (can be called externally)
-    refresh() {
-        this.searchCache.clear();
-        this.loadListings();
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
     
-    // Method to get current state (useful for debugging)
-    getState() {
-        return {
-            currentPage: this.currentPage,
-            pageSize: this.pageSize,
-            currentSort: this.currentSort,
-            currentFilters: { ...this.currentFilters },
-            viewMode: this.viewMode,
-            isLoading: this.isLoading
-        };
+    // Method to refresh listings (can be called externally)
+    refresh() {
+        this.loadListings();
     }
 }
 
-// Initialize the enhanced listings manager when the page loads
-let listingsManager;
-
-// Integration with existing DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', function() {
-    // Only initialize on listings page
-    if (document.getElementById('listingsGrid')) {
-        listingsManager = new EnhancedListingsManager();
-        
-        // Make it globally accessible
-        window.listingsManager = listingsManager;
-        
-        // If EduvosC2C object exists, attach to it
-        if (typeof EduvosC2C !== 'undefined') {
-            EduvosC2C.listings.manager = listingsManager;
-        }
-        
-        // Load user's preferred view mode
-        const savedViewMode = localStorage.getItem('listingsViewMode');
-        if (savedViewMode && ['grid', 'list'].includes(savedViewMode)) {
-            listingsManager.setViewMode(savedViewMode);
-        }
-        
-        console.log('Enhanced Listings Manager initialized');
+// Global functions for favorite and other interactions
+function toggleFavorite(listingId) {
+    // Check if user is logged in
+    if (!window.currentUser) {
+        window.location.href = 'login.php';
+        return;
     }
+    
+    // In a real app, this would make an AJAX call to toggle favorite status
+    console.log('Toggle favorite for listing:', listingId);
+    
+    // Show temporary feedback
+    const button = event.target.closest('button');
+    if (button) {
+        const icon = button.querySelector('i');
+        if (icon.classList.contains('fas')) {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            button.setAttribute('title', 'Add to Favorites');
+        } else {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            button.setAttribute('title', 'Remove from Favorites');
+        }
+    }
+}
+
+// Initialize listings manager when page loads
+let listingsManager;
+document.addEventListener('DOMContentLoaded', function() {
+    listingsManager = new ListingsManager();
+    
+    // Make it globally available for debugging
+    window.listingsManager = listingsManager;
+    
+    // Set up current user from session if available
+    if (typeof currentUserId !== 'undefined') {
+        window.currentUser = { id: currentUserId };
+    }
+});
+
+// Error handling for uncaught promises
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled promise rejection:', event.reason);
+    event.preventDefault();
 });
 
 // Export for use in other scripts
