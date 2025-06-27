@@ -5,7 +5,6 @@ session_start();
 require_once 'config/database.php';
 
 // Initialize database if needed
-initializeDatabase();
 
 $error_message = '';
 $success_message = '';

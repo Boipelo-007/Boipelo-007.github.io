@@ -10,13 +10,13 @@ const FALLBACK_IMAGE = '/assets/images/placeholder.jpg';
 // Critical app shell files that should always be cached
 const APP_SHELL = [
   '/',
-  '/index.html',
+  '/index.php',
   '/listings.php',
   '/about.html',
   '/contact.html',
-  '/login.html',
-  '/register.html',
-  '/sell.html',
+  '/login.php',
+  '/register.php',
+  '/sell.php',
   '/product-detail.php',
   '/offline.html',
   

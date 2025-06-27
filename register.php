@@ -14,7 +14,6 @@ $error_message = '';
 $success_message = '';
 
 // Initialize database if needed
-initializeDatabase();
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

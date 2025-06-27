@@ -3,7 +3,7 @@ session_start();
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: listings.php');
     exit();
 }
 
@@ -61,9 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Redirect based on user type
                 if ($user['user_type'] === 'seller') {
-                    header('Location: seller-dashboard.php');
+                    header('Location: https://edumarket.lovestoblog.com/listings.php');
                 } else {
-                    header('Location: buyer-dashboard.php');
+                    header('Location: https://edumarket.lovestoblog.com/listings.php');
                 }
                 exit();
             } else {
